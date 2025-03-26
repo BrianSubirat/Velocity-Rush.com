@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Rush: Street Legends</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/",
+                "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="loading-screen">
+        <div class="logo">
+            <h1>VELOCITY RUSH</h1>
+            <h2>STREET LEGENDS</h2>
+        </div>
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        <div class="loading-text">Loading Assets...</div>
+    </div>
+
+    <div class="menu-container">
+        <div class="menu">
+            <div class="menu-header">
+                <h1>VELOCITY RUSH</h1>
+                <h2>STREET LEGENDS</h2>
+            </div>
+            <div class="menu-options">
+                <div class="menu-option" data-menu="play">PLAY</div>
+                <div class="menu-option" data-menu="garage">GARAGE</div>
+                <div class="menu-option" data-menu="settings">SETTINGS</div>
+                <div class="menu-option" data-menu="exit">EXIT</div>
+            </div>
+        </div>
+
+        <div class="sub-menu" id="play-menu">
+            <div class="sub-menu-header">
+                <h2>SELECT RACE MODE</h2>
+                <div class="back-button">BACK</div>
+            </div>
+            <div class="race-modes">
+                <div class="race-mode" data-mode="time-trial">
+                    <h3>TIME TRIAL</h3>
+                    <p>Beat the clock on solo runs</p>
+                </div>
+                <div class="race-mode" data-mode="circuit">
+                    <h3>CIRCUIT RACE</h3>
+                    <p>Compete against AI racers</p>
+                </div>
+                <div class="race-mode" data-mode="free-roam">
+                    <h3>FREE ROAM</h3>
+                    <p>Explore the city at your pace</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="sub-menu" id="garage-menu">
+            <div class="sub-menu-header">
+                <h2>GARAGE</h2>
+                <div class="back-button">BACK</div>
+            </div>
+            <div class="garage-content">
+                <div class="car-selection">
+                    <div class="car-option selected" data-car="muscle">MUSCLE</div>
+                    <div class="car-option" data-car="sport">SPORT</div>
+                    <div class="car-option" data-car="super">SUPER</div>
+                </div>
+                <div class="customization-tabs">
+                    <div class="tab active" data-tab="paint">PAINT</div>
+                    <div class="tab" data-tab="performance">PERFORMANCE</div>
+                    <div class="tab" data-tab="decals">DECALS</div>
+                </div>
+                <div class="customization-options">
+                    <div class="color-options">
+                        <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000"></div>
+                        <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00"></div>
+                        <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff"></div>
+                        <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
+                        <div class="color-option" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+                        <div class="color-option" style="background-color: #00ffff;" data-color="#00ffff"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sub-menu" id="settings-menu">
+            <div class="sub-menu-header">
+                <h2>SETTINGS</h2>
+                <div class="back-button">BACK</div>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>GRAPHICS</h3>
+                    <div class="setting">
+                        <span>Quality</span>
+                        <select id="quality-setting">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="ultra">Ultra</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <span>Resolution</span>
+                        <select id="resolution-setting">
+                            <option value="720p">720p</option>
+                            <option value="1080p" selected>1080p</option>
+                            <option value="1440p">1440p</option>
+                            <option value="4k">4K</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>AUDIO</h3>
+                    <div class="setting">
+                        <span>Master Volume</span>
+                        <input type="range" min="0" max="100" value="80" id="master-volume">
+                    </div>
+                    <div class="setting">
+                        <span>Music Volume</span>
+                        <input type="range" min="0" max="100" value="70" id="music-volume">
+                    </div>
+                    <div class="setting">
+                        <span>SFX Volume</span>
+                        <input type="range" min="0" max="100" value="90" id="sfx-volume">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>CONTROLS</h3>
+                    <div class="setting">
+                        <span>Steering Sensitivity</span>
+                        <input type="range" min="0" max="100" value="50" id="steering-sensitivity">
+                    </div>
+                    <div class="setting">
+                        <span>Invert Y-Axis</span>
+                        <input type="checkbox" id="invert-y">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+    
+    <script type="module" src="config.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
