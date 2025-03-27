@@ -15,18 +15,6 @@ let isGameStarted = false;
 let loadingProgress = 0;
 let gsapAnimations = {};
 
-// Free roam environment variables
-let freeRoamActive = false;
-let playerCar = null;
-let cityElements = [];
-let moveDirection = new THREE.Vector3();
-let carVelocity = new THREE.Vector3();
-let carRotation = 0;
-const ACCELERATION = 0.005;
-const MAX_SPEED = 0.5;
-const FRICTION = 0.98;
-const TURN_SPEED = 0.03;
-
 // Initialize the application
 init();
 
@@ -627,148 +615,6 @@ function createSuperCarModel() {
     };
 }
 
-// Create city environment for free roam
-function createFreeRoamEnvironment() {
-    // Create ground plane
-    const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
-    const groundMaterial = new THREE.MeshStandardMaterial({
-        color: 0x333333,
-        roughness: 0.8,
-        metalness: 0.2
-    });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
-    cityElements.push(ground);
-
-    // Add buildings
-    for (let i = 0; i < 50; i++) {
-        const height = Math.random() * 30 + 10;
-        const width = Math.random() * 10 + 5;
-        const depth = Math.random() * 10 + 5;
-        
-        const buildingGeometry = new THREE.BoxGeometry(width, height, depth);
-        const buildingMaterial = new THREE.MeshStandardMaterial({
-            color: Math.random() * 0x808080 + 0x808080,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-        
-        const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-        building.position.x = Math.random() * 200 - 100;
-        building.position.z = Math.random() * 200 - 100;
-        building.position.y = height / 2;
-        building.castShadow = true;
-        building.receiveShadow = true;
-        
-        scene.add(building);
-        cityElements.push(building);
-    }
-
-    // Add street lights
-    for (let i = 0; i < 30; i++) {
-        const lightGeometry = new THREE.CylinderGeometry(0.2, 0.2, 8, 8);
-        const lightMaterial = new THREE.MeshStandardMaterial({
-            color: 0x666666,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-        
-        const lampPost = new THREE.Mesh(lightGeometry, lightMaterial);
-        lampPost.position.x = Math.random() * 180 - 90;
-        lampPost.position.z = Math.random() * 180 - 90;
-        lampPost.position.y = 4;
-        
-        const light = new THREE.PointLight(0xffff99, 1, 20);
-        light.position.set(0, 8, 0);
-        lampPost.add(light);
-        
-        scene.add(lampPost);
-        cityElements.push(lampPost);
-    }
-}
-
-// Start free roam mode
-function startFreeRoam() {
-    freeRoamActive = true;
-    
-    // Hide menus
-    document.querySelector('.menu-container').style.display = 'none';
-    
-    // Create environment
-    createFreeRoamEnvironment();
-    
-    // Setup player car
-    playerCar = carModels[currentCar].model.clone();
-    playerCar.position.set(0, 0.5, 0);
-    scene.add(playerCar);
-    
-    // Reset camera
-    camera.position.set(0, 3, -10);
-    controls.enabled = false;
-    
-    // Add event listeners for controls
-    window.addEventListener('keydown', handleDriveControls);
-    window.addEventListener('keyup', handleDriveControls);
-}
-
-// Handle driving controls
-function handleDriveControls(event) {
-    if (!freeRoamActive) return;
-    
-    const keyDown = event.type === 'keydown';
-    
-    switch(event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-            moveDirection.z = keyDown ? -1 : 0;
-            break;
-        case 'ArrowDown':
-        case 'KeyS':
-            moveDirection.z = keyDown ? 1 : 0;
-            break;
-        case 'ArrowLeft':
-        case 'KeyA':
-            moveDirection.x = keyDown ? -1 : 0;
-            break;
-        case 'ArrowRight':
-        case 'KeyD':
-            moveDirection.x = keyDown ? 1 : 0;
-            break;
-        case 'Escape':
-            if (keyDown) exitFreeRoam();
-            break;
-    }
-}
-
-// Exit free roam mode
-function exitFreeRoam() {
-    freeRoamActive = false;
-    
-    // Remove city elements
-    cityElements.forEach(element => scene.remove(element));
-    cityElements = [];
-    
-    // Remove player car
-    if (playerCar) {
-        scene.remove(playerCar);
-        playerCar = null;
-    }
-    
-    // Reset camera and controls
-    camera.position.set(...config.camera.initialPosition);
-    controls.enabled = true;
-    
-    // Show menus
-    document.querySelector('.menu-container').style.display = 'flex';
-    switchMenu('main');
-    
-    // Remove drive controls
-    window.removeEventListener('keydown', handleDriveControls);
-    window.removeEventListener('keyup', handleDriveControls);
-}
-
 // Show selected car
 function showCar(carType) {
     // Remove previous car if exists
@@ -989,18 +835,6 @@ function initEventListeners() {
     
     // Handle key presses for shortcuts
     window.addEventListener('keydown', handleKeyPress);
-    
-    // Add race mode click handlers
-    const raceModes = document.querySelectorAll('.race-mode');
-    raceModes.forEach(mode => {
-        mode.addEventListener('click', () => {
-            const modeType = mode.dataset.mode;
-            if (modeType === 'free-roam') {
-                startFreeRoam();
-            }
-            // Add other race modes here in the future
-        });
-    });
 }
 
 // Handle key press events
@@ -1049,35 +883,12 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
     
-    if (freeRoamActive && playerCar) {
-        // Update car physics
-        if (moveDirection.z !== 0) {
-            carVelocity.z += moveDirection.z * ACCELERATION;
-        }
-        if (moveDirection.x !== 0) {
-            carRotation += moveDirection.x * TURN_SPEED;
-            playerCar.rotation.y = carRotation;
-        }
-        
-        // Apply velocity and friction
-        carVelocity.multiplyScalar(FRICTION);
-        carVelocity.z = Math.min(Math.max(carVelocity.z, -MAX_SPEED), MAX_SPEED);
-        
-        // Update position
-        playerCar.position.x += Math.sin(carRotation) * -carVelocity.z;
-        playerCar.position.z += Math.cos(carRotation) * -carVelocity.z;
-        
-        // Update camera position
-        const cameraOffset = new THREE.Vector3(
-            Math.sin(carRotation) * 10,
-            3,
-            Math.cos(carRotation) * 10
-        );
-        camera.position.copy(playerCar.position).add(cameraOffset);
-        camera.lookAt(playerCar.position);
-    } else {
-        controls.update();
-    }
+    controls.update();
+    
+    // Remove the manual rotation since it's now handled by the animation system
+    // if (showroomCar) {
+    //     showroomCar.rotation.y += 0.005;
+    // }
     
     renderer.render(scene, camera);
 }
